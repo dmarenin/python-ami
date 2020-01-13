@@ -6,7 +6,19 @@ from functools import partial
 from .action import Action, LoginAction, LogoffAction, SimpleAction
 from .event import Event, EventListener
 from .response import Response, FutureResponse
-from .utils import str, unicode
+
+try:
+    unicode = unicode
+except NameError:
+    str = str
+    unicode = str
+    bytes = bytes
+    basestring = (str, bytes)
+else:
+    str = str
+    unicode = unicode
+    bytes = str
+    basestring = basestring
 
 NOOP = lambda *args, **kwargs: None
 
@@ -54,8 +66,7 @@ class AMIClient(object):
     asterisk_pack_regex = re.compile(b'\r\n\r\n', re.IGNORECASE | re.MULTILINE)
 
     def __init__(self, address='127.0.0.1', port=5038,
-                 encoding='utf-8', encoding_errors='replace',
-                 timeout=3, buffer_size=2 ** 10,
+                 encoding='utf-8', timeout=3, buffer_size=2 ** 10,
                  **kwargs):
         self._action_counter = 0
         self._futures = {}
@@ -70,7 +81,6 @@ class AMIClient(object):
         self._ami_version = None
         self._timeout = timeout
         self.encoding = encoding
-        self.encoding_errors = encoding_errors
         if len(kwargs) > 0:
             self.add_listener(**kwargs)
 
@@ -81,7 +91,6 @@ class AMIClient(object):
 
     def connect(self):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(self._timeout)
         self._socket.connect((self._address, self._port))
         self.finished = threading.Event()
         self._thread = threading.Thread(target=self.listen)
@@ -116,7 +125,7 @@ class AMIClient(object):
         self.finished.set()
         try:
             self._socket.close()
-            self._thread.join(self._timeout)
+            self._thread.join()
         except:
             pass
 
@@ -146,7 +155,7 @@ class AMIClient(object):
         self._socket.send(bytearray(unicode(pack) + '\r\n', self.encoding))
 
     def _decode_pack(self, pack):
-        return pack.decode(self.encoding, errors=self.encoding_errors)
+        return pack.decode(self.encoding)
 
     def _next_pack(self):
         data = b''
@@ -306,6 +315,18 @@ class AutoReconnect(threading.Thread):
             self.on_disconnect(self._ami_client, ex)
         return False
 
+    #def try_reconnect(self):
+    #    try:
+    #        f = self._login(*self._login_args[0], **self._login_args[1])
+    #        response = f.response
+    #        if response is not None and not response.is_error():
+    #            self.on_reconnect(self._ami_client, response)
+    #            return True
+    #    except:
+    #        pass
+    #    return False
+
+    #dmarenin patch AutoReconnect goes into an endless loop
     def try_reconnect(self):
         try:
             f = self._login(*self._login_args[0], **self._login_args[1])
@@ -313,6 +334,14 @@ class AutoReconnect(threading.Thread):
             if response is not None and not response.is_error():
                 self.on_reconnect(self._ami_client, response)
                 return True
+        except (BrokenPipeError):
+            self._ami_client.disconnect()
+            self.try_reconnect()
+
+            #self._ami_client._socket.close()
+            #self._ami_client._socket = None
+            #self._ami_client.connect()
+            #self.try_reconnect()
         except:
             pass
         return False
