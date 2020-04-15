@@ -92,7 +92,7 @@ class AMIClient(object):
         self._ami_version = None
         self._timeout = timeout
         self.encoding = encoding
-		self.encoding_errors = encoding_errors
+        self.encoding_errors = encoding_errors
         if len(kwargs) > 0:
             self.add_listener(**kwargs)
 
