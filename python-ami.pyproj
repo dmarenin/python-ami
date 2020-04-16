@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8c3137bd-21b8-4ead-a8d1-f261249fdd34}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>setup.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="requirements-dev.txt" />
+    <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ami\action.py" />
+    <Compile Include="ami\client.py" />
+    <Compile Include="ami\event.py" />
+    <Compile Include="ami\response.py" />
+    <Compile Include="ami\utils.py" />
+    <Compile Include="ami\__init__.py" />
+    <Compile Include="asterisk\ami\action.py" />
+    <Compile Include="asterisk\ami\_client.py" />
+    <Compile Include="asterisk\ami\client.py" />
+    <Compile Include="asterisk\ami\event.py" />
+    <Compile Include="asterisk\ami\response.py" />
+    <Compile Include="asterisk\ami\utils.py" />
+    <Compile Include="asterisk\ami\__init__.py" />
+    <Compile Include="asterisk\__init__.py" />
+    <Compile Include="examples\print_event.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="examples\mqtt_bridge.py" />
+    <Compile Include="examples\settings.py" />
+    <Compile Include="examples\simple_event_notification.py" />
+    <Compile Include="examples\simple_ringing_notification.py" />
+    <Compile Include="examples\__init__.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="tests\integration\test_auto_reconnect.py" />
+    <Compile Include="tests\integration\test_callback.py" />
+    <Compile Include="tests\integration\test_command.py" />
+    <Compile Include="tests\integration\test_connect.py" />
+    <Compile Include="tests\integration\__init__.py" />
+    <Compile Include="tests\settings.py" />
+    <Compile Include="tests\unit\mock_ami.py" />
+    <Compile Include="tests\unit\test_action.py" />
+    <Compile Include="tests\unit\test_ami_client.py" />
+    <Compile Include="tests\unit\test_ami_event.py" />
+    <Compile Include="tests\unit\test_client_encoding.py" />
+    <Compile Include="tests\unit\test_connection.py" />
+    <Compile Include="tests\unit\test_event_listener.py" />
+    <Compile Include="tests\unit\test_response.py" />
+    <Compile Include="tests\unit\__init__.py" />
+    <Compile Include="tests\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ami" />
+    <Folder Include="asterisk" />
+    <Folder Include="asterisk\ami" />
+    <Folder Include="examples" />
+    <Folder Include="tests" />
+    <Folder Include="tests\integration" />
+    <Folder Include="tests\unit" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>
