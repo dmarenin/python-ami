@@ -64,20 +64,9 @@ class AMIClient(object):
     asterisk_start_regex = re.compile('^Asterisk *Call *Manager/(?P<version>([0-9]+\.)*[0-9]+)', re.IGNORECASE)
     asterisk_line_regex = re.compile(b'\r\n', re.IGNORECASE | re.MULTILINE)
     asterisk_pack_regex = re.compile(b'\r\n\r\n', re.IGNORECASE | re.MULTILINE)
-    
-	# EventList start pattern
-    asterisk_start_list_regex = re.compile(
-        b'^Response: Success\r\nActionID: \d+\r\nEventList: start',
-        re.IGNORECASE | re.MULTILINE
-    )
-    # EventList end pattern
-    asterisk_end_list_regex = re.compile(
-        b'EventList: Complete\r\n.+\r\n.+\r\n\r\n',
-        re.IGNORECASE | re.MULTILINE
-    )
-	
+
     def __init__(self, address='127.0.0.1', port=5038,
-                 encoding='utf-8', encoding_errors='replace', timeout=3, buffer_size=2 ** 10,
+                 encoding='utf-8', timeout=3, buffer_size=2 ** 10,
                  **kwargs):
         self._action_counter = 0
         self._futures = {}
@@ -92,7 +81,6 @@ class AMIClient(object):
         self._ami_version = None
         self._timeout = timeout
         self.encoding = encoding
-		self.encoding_errors = encoding_errors
         if len(kwargs) > 0:
             self.add_listener(**kwargs)
 
@@ -137,7 +125,7 @@ class AMIClient(object):
         self.finished.set()
         try:
             self._socket.close()
-            self._thread.join(self._timeout)
+            self._thread.join()
         except:
             pass
 
@@ -167,7 +155,7 @@ class AMIClient(object):
         self._socket.send(bytearray(unicode(pack) + '\r\n', self.encoding))
 
     def _decode_pack(self, pack):
-        return pack.decode(self.encoding, errors=self.encoding_errors)
+        return pack.decode(self.encoding)
 
     def _next_pack(self):
         data = b''
@@ -182,20 +170,9 @@ class AMIClient(object):
                 yield self._decode_pack(pack)
                 break
         while not self.finished.is_set():
-            is_list = self.asterisk_start_list_regex.match(data)
-            list_ends = self.asterisk_end_list_regex.search(data)
-            # If data has complete EventList even, get and yield it
-            if is_list and list_ends:
-                ending = list_ends.group()
-                (pack, data) = self.asterisk_end_list_regex.split(data, 1)
-                yield self._decode_pack(pack + ending)
-            # If data has Event divider CLRFCLRF and it is not EventList
-            # (has to starts with EventList start pattern
-            # get anf yield it
-            elif not is_list and self.asterisk_pack_regex.search(data):
+            while self.asterisk_pack_regex.search(data):
                 (pack, data) = self.asterisk_pack_regex.split(data, 1)
                 yield self._decode_pack(pack)
-            # Read the data
             recv = self._socket.recv(self._buffer_size)
             if recv == b'':
                 self.finished.set()
