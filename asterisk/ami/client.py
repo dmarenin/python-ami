@@ -214,7 +214,7 @@ class AMIClient(object):
                 continue
             data += recv
 
-            logging.info('ami raw -> '+str(data))
+            #logging.info('ami raw -> '+str(data))
 
         self._socket.close()
 
